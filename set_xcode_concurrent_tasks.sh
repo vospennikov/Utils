@@ -1,11 +1,16 @@
 #!/bin/bash
 
+hw_cpu="$(sysctl -n hw.ncpu)"
+
 usage() {
-    echo "Error: Invalid option -$OPTARG. Please select either -w, -r, -d"
+    echo "Usage: ./set_xcode_concurrent_tasks.sh <command>"
+    echo "Options:"
+    echo "  -r            Read xcode keys"
+    echo "  -w <count>    Set concurrent tasks to xcode (default: ${hw_cpu})"
+    echo "  -d            Remove concurrent tasks keys"
     exit 1
 }
 
-hw_cpu="$(sysctl -n hw.ncpu)"
 keys=(
     "PBXNumberOfParallelBuildSubtasks"
     "IDEBuildOperationMaxNumberOfConcurrentCompileTasks"
@@ -47,10 +52,13 @@ if [[ $# -eq 0 ]]; then
     usage
 fi
 
-while getopts "rwd" opt; do
+while getopts ":rdw:" opt; do
     case $opt in
     r) read_keys ;;
-    w) write_keys ;;
+    w)
+        hw_cpu="$OPTARG"
+        write_keys
+        ;;
     d) delete_keys ;;
     \?) usage ;;
     esac
