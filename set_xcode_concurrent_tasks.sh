@@ -6,8 +6,9 @@ usage() {
     echo "Usage: ./set_xcode_concurrent_tasks.sh <command>"
     echo "Options:"
     echo "  -r            Read xcode keys"
-    echo "  -w <count>    Set concurrent tasks to xcode (default: ${hw_cpu})"
+    echo "  -w            Set concurrent tasks to xcode (default: ${hw_cpu})"
     echo "  -d            Remove concurrent tasks keys"
+    echo "  -n <int>      Number of xcode tasks"
     exit 1
 }
 
@@ -52,14 +53,15 @@ if [[ $# -eq 0 ]]; then
     usage
 fi
 
-while getopts ":rdw:" opt; do
+declare command
+while getopts ":rdwn:" opt; do
     case $opt in
-    r) read_keys ;;
-    w)
-        hw_cpu="$OPTARG"
-        write_keys
-        ;;
-    d) delete_keys ;;
+    r) command=read_keys ;;
+    w) command=write_keys ;;
+    n) hw_cpu="$OPTARG";;
+    d) command=delete_keys ;;
     \?) usage ;;
     esac
 done
+
+$command
